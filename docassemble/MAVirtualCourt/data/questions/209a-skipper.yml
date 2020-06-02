@@ -50,19 +50,21 @@ code: |
     foo = False
   
   else:
-    if to_fill.set_intro:
-      set_intro
+    if to_fill.set_intro: set_intro
     # 0b. Skip all informational/intro screens
     #if skip_infos:
     #  set_infos
 
     # 1. Intro (all intros?)
     
-    # 1b. Who protecting
 
-    # 2. Plaintiff name/major/current address - all addresses?
+    # 2. Filling out for someone else
+    if to_fill.set_protecting:
+      set_protecting
 
-    # 3. Filling out for someone else
+    # 3. Plaintiff name/major/current address - all addresses?
+    if to_fill.plaintiff_and_defendant_names:
+      plaintiff_and_defendant_names
 
     # 4. Defendant name/major/???
 
@@ -99,25 +101,41 @@ question: |
 fields:
   #- WIP Skip straight to the PDF: skip_to_pdf
   #  datatype: yesnowide
-  - WIP Skip intro (including accepting terms): to_fill.set_intro
+  - Intro (including accepting terms): to_fill.set_intro
+    datatype: yesnowide
+    default: True
+  # TODO: Create the consequences of this choice
+  - Who plaintiff is protecting: to_fill.set_protecting
+    datatype: yesnowide
+    default: True
+  - Who are they filing this for: who_protecting_screener
+    datatype: radio
+    default: me
+    show if: to_fill.set_protecting
+    choices:
+      - Themselves: me
+      - Them and their children: me and children
+      - Helpinig someone else: someone else
+  - Names for defendant and plaintiff: to_fill.plaintiff_and_defendant_names
     datatype: yesnowide
     default: True
   
 css: |
   <style>
-    .question-offer-profiles input.labelauty + label {
+    .question-skipper input.labelauty + label {
       padding: .4rem;
       border: 1px solid darkgray;
     }
-    .question-offer-profiles hr,
-    .question-offer-profiles .form-group {
+    .question-skipper hr,
+    .question-skipper .form-group {
       margin: .4rem;
     }
-    .question-offer-profiles hr {
+    .question-skipper hr {
       border-top-color: darkgray;
     }
   </style>
 ---
+# basic-questions.yml and 209A_Page_1.yml
 sets: set_intro
 scan for variables: False
 code: |
@@ -130,14 +148,43 @@ code: |
 ---
 # 1
 ---
+id: 
+sets: set_
+scan for variables: False
+code: |
+
+  log( 'set_', 'console' )
+  set_ = True
 ---
 # 1b
 ---
 ---
-# 2
+# 2 209A_Page_1.yml?
+id: who_protecting
+sets: set_protecting
+scan for variables: False
+code: |
+  # TODO: Go into the consequences
+  log( 'set_protecting', 'console' )
+  set_protecting = True
 ---
 ---
-# 3
+# 3  basic-questions.yml?
+id: plaintiff_and_defendant_names
+sets: plaintiff_and_defendant_names
+scan for variables: False
+code: |
+  users[0].name.first = 'Pat'
+  users[0].name.middle = 'Pip'
+  users[0].name.last = 'Plaintiff'
+  users[0].name.suffix = 'VI'
+
+  other_parties[0].name.first = 'Drew'
+  other_parties[0].name.middle = 'Dar'
+  other_parties[0].name.last = 'Defendant'
+  other_parties[0].name.suffix = 'II'
+
+  plaintiff_and_defendant_names = True
 ---
 ---
 # 4
